@@ -38,7 +38,9 @@ function createGrid(cols, rows) {
       if (e.button === 2) {
         pixel.classList.remove("black")
       }
-      pixel.classList.add("black"); 
+      else {
+        pixel.classList.add("black"); 
+      }
     });
     pixel.addEventListener("mouseover", () => { 
       if(drawing) pixel.classList.add("black"); 
