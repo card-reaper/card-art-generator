@@ -21,11 +21,11 @@ html, body {
 }
 
 .pixel {
-  background: white;
+  background: black;
   border: 1px solid #ccc;
   box-sizing: border-box;
 }
 
 .pixel.black {
-  background: black;
+  background: white;
 }

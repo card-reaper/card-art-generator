@@ -34,13 +34,27 @@ function createGrid(cols, rows) {
 }
 
 exportBtn.addEventListener("click", () => {
-  const pixels = Array.from(grid.children).map(p =>
-    p.classList.contains("black") ? 1 : 0
-  );
+  const cols = +widthInput.value;
+  const rows = +heightInput.value;
 
-  console.log(pixels);
-  alert("Exported to console");
+  // 1 = white, 0 = black
+  const imageString = Array.from(grid.children)
+    .map(p => p.classList.contains("black") ? "0" : "1")
+    .join("");
+
+  const json = {
+    imageWidth: cols,
+    imageHeight: rows,
+    image: imageString
+  };
+
+  const jsonText = JSON.stringify(json, null, 2); // pretty print
+
+  // put JSON in textarea
+  const output = document.getElementById("jsonOutput");
+  output.value = jsonText;
 });
+
 
 
 clearBtn.addEventListener("click", () => {
@@ -58,5 +72,6 @@ heightInput.addEventListener("change", () =>
   createGrid(+widthInput.value, +heightInput.value)
 );
 
-// Initial grid
-createGrid(32, 32);
+// initial grid matches input values
+createGrid(+widthInput.value, +heightInput.value);
+
