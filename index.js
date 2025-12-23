@@ -33,7 +33,7 @@ function createGrid(cols, rows) {
   }
 }
 
-exportBtn.addEventListener("click", () => {
+function exportJson() {
   const cols = +widthInput.value;
   const rows = +heightInput.value;
 
@@ -53,8 +53,21 @@ exportBtn.addEventListener("click", () => {
   // put JSON in textarea
   const output = document.getElementById("jsonOutput");
   output.value = jsonText;
-});
+}
 
+exportBtn.addEventListener("click", exportJson);
+
+
+const copyBtn = document.getElementById("copyOutput");
+
+copyBtn.addEventListener("click", () => {
+  const output = document.getElementById("jsonOutput");
+  output.select();
+  output.setSelectionRange(0, 99999); // for mobile devices
+  navigator.clipboard.writeText(output.value)
+    .then(() => alert("Copied to clipboard!"))
+    .catch(err => alert("Failed to copy: " + err));
+});
 
 
 clearBtn.addEventListener("click", () => {
@@ -74,4 +87,5 @@ heightInput.addEventListener("change", () =>
 
 // initial grid matches input values
 createGrid(+widthInput.value, +heightInput.value);
+exportJson()
 
