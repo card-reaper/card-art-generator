@@ -5,9 +5,16 @@ const exportBtn = document.getElementById("export");
 const clearBtn = document.getElementById("clear");
 
 let drawing = false;
+let erasing = false;
 
-document.addEventListener("mousedown", () => drawing = true);
-document.addEventListener("mouseup", () => drawing = false);
+document.addEventListener("mousedown", (e) => {
+  if (e.button === 0) drawing = true
+  else if (e.button === 2) erasing = true
+});
+document.addEventListener("mouseup", () => {
+  drawing = false;
+  erasing = false;
+});
 function createGrid(cols, rows) {
   grid.innerHTML = "";
 
@@ -26,8 +33,19 @@ function createGrid(cols, rows) {
     pixel.className = "pixel";
     pixel.draggable = false;
 
-    pixel.addEventListener("mousedown", e => { e.preventDefault(); pixel.classList.add("black"); });
-    pixel.addEventListener("mouseover", () => { if(drawing) pixel.classList.add("black"); });
+    pixel.addEventListener("mousedown", e => { 
+      e.preventDefault(); 
+      if (e.button === 2) {
+        pixel.classList.remove("black")
+      }
+      pixel.classList.add("black"); 
+    });
+    pixel.addEventListener("mouseover", () => { 
+      if(drawing) pixel.classList.add("black"); 
+      if(erasing) pixel.classList.remove("black");
+    });
+
+    pixel.addEventListener("contextmenu", e => e.preventDefault());
 
     grid.appendChild(pixel);
   }
