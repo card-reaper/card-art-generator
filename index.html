@@ -7,37 +7,14 @@
 </head>
 <body>
   <div class="controls">
-    <label>Width <input type="number" value="32"></label>
-    <label>Height <input type="number" value="32"></label>
+    <label>Width <input id="width" type="number" value="32"></label>
+    <label>Height <input id="height" type="number" value="32"></label>
     <button id="export">Export</button>
     <button id="clear">Clear</button>
   </div>
-  
+    
   <div class="grid" id="grid"></div>
 
-  <script>
-    const grid = document.getElementById("grid");
-    let drawing = false;
-
-    document.addEventListener("mousedown", () => drawing = true);
-    document.addEventListener("mouseup", () => drawing = false);
-
-    for (let i = 0; i < 32 * 32; i++) {
-      const pixel = document.createElement("div");
-      pixel.className = "pixel";
-
-      pixel.addEventListener("mousedown", () => {
-        pixel.classList.add("black");
-      });
-
-      pixel.addEventListener("mouseover", () => {
-        if (drawing) {
-          pixel.classList.add("black");
-        }
-      });
-
-      grid.appendChild(pixel);
-    }
-  </script>
+  <script src="index.js"></script>
 </body>
 </html>
