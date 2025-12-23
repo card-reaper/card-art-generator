@@ -7,57 +7,102 @@ const clearBtn = document.getElementById("clear");
 let drawing = false;
 let erasing = false;
 
+// track mouse buttons globally
 document.addEventListener("mousedown", (e) => {
-  if (e.button === 0) drawing = true
-  else if (e.button === 2) erasing = true
+  if (e.button === 0) drawing = true;
+  if (e.button === 2) erasing = true;
 });
 document.addEventListener("mouseup", () => {
   drawing = false;
   erasing = false;
 });
-function createGrid(cols, rows) {
-  grid.innerHTML = "";
 
-  // calculate cell size to fit screen and maintain aspect ratio
-  const maxWidth = window.innerWidth * 0.9;
-  const maxHeight = window.innerHeight * 0.9;
-  const cellSize = Math.floor(Math.min(maxWidth / cols, maxHeight / rows));
+// prevent right-click menu on grid
+grid.addEventListener("contextmenu", e => e.preventDefault());
 
-  grid.style.width = `${cellSize * cols}px`;
-  grid.style.height = `${cellSize * rows}px`;
-  grid.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
-  grid.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
+// store current grid dimensions for resizing
+grid.dataset.cols = widthInput.value;
+grid.dataset.rows = heightInput.value;
 
-  for (let i = 0; i < cols * rows; i++) {
-    const pixel = document.createElement("div");
-    pixel.className = "pixel";
-    pixel.draggable = false;
-
-    pixel.addEventListener("mousedown", e => { 
-      e.preventDefault(); 
-      if (e.button === 2) {
-        pixel.classList.remove("black")
-      }
-      else {
-        pixel.classList.add("black"); 
-      }
-    });
-    pixel.addEventListener("mouseover", () => { 
-      if(drawing) pixel.classList.add("black"); 
-      if(erasing) pixel.classList.remove("black");
-    });
-
-    pixel.addEventListener("contextmenu", e => e.preventDefault());
-
-    grid.appendChild(pixel);
+// get current pixel values as 2D array
+function getPixelValues(cols, rows) {
+  const pixels = Array.from(grid.children);
+  const values = [];
+  for (let r = 0; r < rows; r++) {
+    const row = [];
+    for (let c = 0; c < cols; c++) {
+      const i = r * cols + c;
+      const pixel = pixels[i];
+      row.push(pixel && pixel.classList.contains("black") ? 1 : 0);
+    }
+    values.push(row);
   }
+  return values;
 }
 
+// create grid with optional old values to preserve
+function createGrid(newCols, newRows, oldValues = [], oldCols = 0, oldRows = 0) {
+  grid.innerHTML = "";
+
+  const maxWidth = window.innerWidth * 0.9;
+  const maxHeight = window.innerHeight * 0.9;
+  const cellSize = Math.floor(Math.min(maxWidth / newCols, maxHeight / newRows));
+
+  grid.style.width = `${cellSize * newCols}px`;
+  grid.style.height = `${cellSize * newRows}px`;
+  grid.style.gridTemplateColumns = `repeat(${newCols}, ${cellSize}px)`;
+  grid.style.gridTemplateRows = `repeat(${newRows}, ${cellSize}px)`;
+
+  for (let r = 0; r < newRows; r++) {
+    for (let c = 0; c < newCols; c++) {
+      const pixel = document.createElement("div");
+      pixel.className = "pixel";
+      pixel.draggable = false;
+
+      // restore old value if within bounds
+      if (oldValues[r] && oldValues[r][c] === 1) {
+        pixel.classList.add("black");
+      }
+
+      // left/right click painting
+      pixel.addEventListener("mousedown", e => {
+        e.preventDefault();
+        if (e.button === 0) pixel.classList.add("black");
+        if (e.button === 2) pixel.classList.remove("black");
+      });
+
+      // drag painting
+      pixel.addEventListener("mouseover", () => {
+        if (drawing) pixel.classList.add("black");
+        if (erasing) pixel.classList.remove("black");
+      });
+
+      grid.appendChild(pixel);
+    }
+  }
+
+  // save new dimensions for future resize
+  grid.dataset.cols = newCols;
+  grid.dataset.rows = newRows;
+}
+
+// handle resizing grid while preserving old pixels
+function resizeGrid() {
+  const oldCols = +grid.dataset.cols;
+  const oldRows = +grid.dataset.rows;
+  const oldValues = getPixelValues(oldCols, oldRows);
+
+  const newCols = +widthInput.value;
+  const newRows = +heightInput.value;
+
+  createGrid(newCols, newRows, oldValues, oldCols, oldRows);
+}
+
+// export grid as JSON string
 function exportJson() {
   const cols = +widthInput.value;
   const rows = +heightInput.value;
 
-  // 1 = white, 0 = black
   const imageString = Array.from(grid.children)
     .map(p => p.classList.contains("black") ? "0" : "1")
     .join("");
@@ -68,44 +113,34 @@ function exportJson() {
     image: imageString
   };
 
-  const jsonText = JSON.stringify(json, null, 2); // pretty print
+  const jsonText = JSON.stringify(json, null, 2);
 
-  // put JSON in textarea
-  const output = document.getElementById("jsonOutput");
-  output.value = jsonText;
+  document.getElementById("jsonOutput").value = jsonText;
 }
 
-exportBtn.addEventListener("click", exportJson);
-
-
+// copy JSON output to clipboard
 const copyBtn = document.getElementById("copyOutput");
-
 copyBtn.addEventListener("click", () => {
   const output = document.getElementById("jsonOutput");
   output.select();
-  output.setSelectionRange(0, 99999); // for mobile devices
+  output.setSelectionRange(0, 99999);
   navigator.clipboard.writeText(output.value)
     .then(() => alert("Copied to clipboard!"))
     .catch(err => alert("Failed to copy: " + err));
 });
 
-
+// clear all pixels
 clearBtn.addEventListener("click", () => {
   for (const pixel of grid.children) {
     pixel.classList.remove("black");
   }
 });
 
+// attach listeners
+exportBtn.addEventListener("click", exportJson);
+widthInput.addEventListener("change", resizeGrid);
+heightInput.addEventListener("change", resizeGrid);
 
-// Regenerate grid when width/height change
-widthInput.addEventListener("change", () =>
-  createGrid(+widthInput.value, +heightInput.value)
-);
-heightInput.addEventListener("change", () =>
-  createGrid(+widthInput.value, +heightInput.value)
-);
-
-// initial grid matches input values
+// initial grid
 createGrid(+widthInput.value, +heightInput.value);
-exportJson()
-
+exportJson();
