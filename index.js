@@ -8,27 +8,26 @@ let drawing = false;
 
 document.addEventListener("mousedown", () => drawing = true);
 document.addEventListener("mouseup", () => drawing = false);
-
-function createGrid(w, h) {
+function createGrid(cols, rows) {
   grid.innerHTML = "";
-  grid.style.gridTemplateColumns = `repeat(${w}, 16px)`;
-  grid.style.gridTemplateRows = `repeat(${h}, 16px)`;
 
-  for (let i = 0; i < w * h; i++) {
+  // calculate cell size to fit screen and maintain aspect ratio
+  const maxWidth = window.innerWidth * 0.9;
+  const maxHeight = window.innerHeight * 0.9;
+  const cellSize = Math.floor(Math.min(maxWidth / cols, maxHeight / rows));
+
+  grid.style.width = `${cellSize * cols}px`;
+  grid.style.height = `${cellSize * rows}px`;
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+  grid.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
+
+  for (let i = 0; i < cols * rows; i++) {
     const pixel = document.createElement("div");
     pixel.className = "pixel";
-    pixel.draggable = false
+    pixel.draggable = false;
 
-    pixel.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      pixel.classList.add("black");
-    });
-
-    pixel.addEventListener("mouseover", () => {
-      if (drawing) {
-        pixel.classList.add("black");
-      }
-    });
+    pixel.addEventListener("mousedown", e => { e.preventDefault(); pixel.classList.add("black"); });
+    pixel.addEventListener("mouseover", () => { if(drawing) pixel.classList.add("black"); });
 
     grid.appendChild(pixel);
   }
