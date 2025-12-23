@@ -6,6 +6,7 @@
   <style>
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -30,9 +31,22 @@
     .pixel.black {
       background: black;
     }
+
+    .controls {
+      display: flex;
+      flex-direction: row;
+    }
   </style>
 </head>
 <body>
+  <div class="controls">
+    <label for="width">Width:</label>
+    <input name="width" type="number" value="32">
+    <label for="height">Height:</label>
+    <input name="height" type="number" value="32">
+    <button>Export</button>
+
+  </div>
   <div class="grid" id="grid"></div>
 
   <script>
