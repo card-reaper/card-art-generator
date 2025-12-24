@@ -33,3 +33,7 @@ html, body {
 .pixel.black {
   background: white;
 }
+
+button {
+  white-space: nowrap;
+}

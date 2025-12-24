@@ -11,9 +11,8 @@
   <div class="controls">
     <label>Width <input id="width" type="number" value="32"></label>
     <label>Height <input id="height" type="number" value="32"></label>
-    <button id="export">Export</button>
     <button id="clear">Clear</button>
-    <button id="toggleGrid" style="white-space: nowrap;">Grid toggle</button>
+    <button id="toggleGrid">Grid toggle</button>
     <!-- <label class="switch">
       <span class="switch-label">Grid</span>
       <input type="checkbox" id="toggleGrid" checked>
@@ -29,7 +28,9 @@
 
     <div style="display: flex; flex-direction: column;">
       <button id="copyOutput" type="button">Copy Json</button>
-      <button id="loadJson">Load Image from Json</button>
+      <button id="export">Image -> Json</button>
+
+      <button id="loadJson">Json -> Image</button>
     </div>
   </div>
   
@@ -42,7 +43,10 @@
   <div>
     <h1>Instructions</h1>
     <p>
-      Click and drag to draw, right-click and drag to erase. Change width and height to desired. Once you're happy with your picture, click export and copy the json string for your card.
+      Click and drag to draw, right-click and drag to erase. Change width and height to desired. Once you're happy with your picture, click "Image->Json" and copy the json string for your card.
+    </p>
+    <p>
+      If someone sends you a card in json form, you can paste it in the input/output field, then click "Json->Image" to display how the card will look in-game. 
     </p>
   </div>
 
