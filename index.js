@@ -12,8 +12,9 @@ const undoBtn = document.getElementById("undo")
 let drawing = false;
 let erasing = false;
 
-const undoStates = []
-const maxUndoStates = 50
+const undoStack = []
+const redoStack = []
+const MAX_UNDO = 50
 
 
 function buildImageJson() {
@@ -85,30 +86,36 @@ function loadFromJson(inputString){
 }
 
 function saveState() {
-  console.log("Saving...")
-  const jsonState = buildImageJson()
-
-  undoStates.push(jsonState)
-  if (undoStates.length > maxUndoStates) {
-    undoStates.shift()
+  const state = buildImageJson();
+  if (undoStack.length === 0) undoStack.push(state)
+  if (undoStack[undoStack.length - 1] !== state) {
+    console.log("Saving...")
+    undoStack.push(state);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack.length = 0; // clear redo
   }
-
-  console.log(undoStates)
-
-}
-
-function restoreFromUndo() {
-  if (undoStates.length === 0) return
-  const state = undoStates.pop()
-  loadFromJson(state)
-
 }
 
 function undo() {
-  console.log("Undoing...")
-  console.log(undoStates)
-  restoreFromUndo()
+  if (!undoStack.length) return;
+
+  const current = buildImageJson();
+  redoStack.push(current);
+
+  const prev = undoStack.pop();
+  loadFromJson(prev, false); // false: don't save state again
 }
+
+function redo() {
+  if (!redoStack.length) return;
+
+  const current = buildImageJson();
+  undoStack.push(current);
+
+  const next = redoStack.pop();
+  loadFromJson(next, false);
+}
+
 
 undoBtn.addEventListener("click", undo)
 
@@ -121,6 +128,7 @@ document.addEventListener("mousedown", (e) => {
 document.addEventListener("mouseup", () => {
   drawing = false;
   erasing = false;
+  saveState()
 });
 
 // prevent right-click menu on grid
@@ -182,10 +190,6 @@ function createGrid(newCols, newRows, oldValues = [], oldCols = 0, oldRows = 0) 
         if (drawing) pixel.classList.add("black");
         if (erasing) pixel.classList.remove("black");
       });
-
-      pixel.addEventListener("mouseup", () => {
-        saveState()
-      })
 
       grid.appendChild(pixel);
     }
