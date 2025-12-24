@@ -4,6 +4,9 @@ const heightInput = document.getElementById("height");
 const exportBtn = document.getElementById("export");
 const clearBtn = document.getElementById("clear");
 const toggleGridBtn = document.getElementById("toggleGrid");
+const loadBtn = document.getElementById("loadJson");
+// note: input and output share an element
+const jsonInput = document.getElementById("jsonOutput");
 
 let drawing = false;
 let erasing = false;
@@ -141,6 +144,50 @@ clearBtn.addEventListener("click", () => {
 toggleGridBtn.addEventListener("click", () => {
   grid.classList.toggle("no-lines");
 });
+
+loadBtn.addEventListener("click", () => {
+  let data;
+
+  try {
+    data = JSON.parse(jsonInput.value);
+  } catch {
+    alert("Invalid JSON");
+    return;
+  }
+
+  const { imageWidth, imageHeight, image } = data;
+
+  if (
+    typeof imageWidth !== "number" ||
+    typeof imageHeight !== "number" ||
+    typeof image !== "string" ||
+    image.length !== imageWidth * imageHeight
+  ) {
+    alert("Invalid image data");
+    return;
+  }
+
+  // update inputs
+  widthInput.value = imageWidth;
+  heightInput.value = imageHeight;
+
+  // rebuild grid
+  createGrid(imageWidth, imageHeight);
+
+  // apply pixels
+  const pixels = grid.children;
+  for (let i = 0; i < image.length; i++) {
+    if (image[i] === "0") {
+      pixels[i].classList.add("black");
+    } else {
+      pixels[i].classList.remove("black");
+    }
+  }
+
+  // update export preview
+  exportJson();
+});
+
 
 
 // attach listeners

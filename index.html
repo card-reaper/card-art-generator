@@ -20,12 +20,21 @@
       <span class="slider"></span>
     </label> -->
   </div>
+
+  <div style="display: flex; flex-direction: row;">
+    <label>
+      Input/Output:
+      <textarea id="jsonOutput" style="margin-left:8px; margin-right: 8px; width:400px; height:150px;"></textarea>
+    </label>
+
+    <div style="display: flex; flex-direction: column;">
+      <button id="copyOutput" type="button">Copy Json</button>
+      <button id="loadJson">Load Image from Json</button>
+    </div>
+  </div>
   
-  <label>
-    Output
-    <textarea id="jsonOutput" style="margin-left:8px; margin-right: 8px; width:400px; height:150px;"></textarea>
-    <button id="copyOutput" type="button">Copy</button>
-  </label>
+  
+    
   
 
   <div class="grid" id="grid"></div>
