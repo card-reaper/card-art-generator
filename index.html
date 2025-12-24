@@ -6,31 +6,31 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <nav><a href="https://card-reaper.com/">Card-reaper.com</a></nav>
+  <nav class="top-nav">
+    <a href="https://card-reaper.com/">Card-reaper.com</a>
+  </nav>
+  
   <h1>Card Reaper Custom Art Studio</h1>
-  <div class="controls">
-    <label>Width <input id="width" type="number" value="32"></label>
-    <label>Height <input id="height" type="number" value="32"></label>
-    <button id="clear">Clear</button>
-    <button id="toggleGrid">Grid toggle</button>
-    <!-- <label class="switch">
-      <span class="switch-label">Grid</span>
-      <input type="checkbox" id="toggleGrid" checked>
-      <span class="slider"></span>
-    </label> -->
-  </div>
-
-  <div style="display: flex; flex-direction: row;">
-    <label>
-      Input/Output:
-      <textarea id="jsonOutput" style="margin-left:8px; margin-right: 8px; width:400px; height:150px;"></textarea>
-    </label>
-
-    <div style="display: flex; flex-direction: column;">
-      <button id="copyOutput" type="button">Copy Json</button>
-      <button id="export">Image -> Json</button>
-
-      <button id="loadJson">Json -> Image</button>
+  
+  <div class="panel">
+    <div class="controls">
+      <label>Width <input id="width" type="number" value="32"></label>
+      <label>Height <input id="height" type="number" value="32"></label>
+      <button id="clear">Clear</button>
+      <button id="toggleGrid">Grid</button>
+    </div>
+  
+    <div class="io">
+      <div class="textarea-group">
+        <label>Image JSON</label>
+        <textarea id="jsonOutput"></textarea>
+      </div>
+  
+      <div class="buttons">
+        <button id="export">Image → JSON</button>
+        <button id="loadJson">JSON → Image</button>
+        <button id="copyOutput">Copy</button>
+      </div>
     </div>
   </div>
   
