@@ -7,9 +7,111 @@ const toggleGridBtn = document.getElementById("toggleGrid");
 const loadBtn = document.getElementById("loadJson");
 // note: input and output share an element
 const jsonInput = document.getElementById("jsonOutput");
+const undoBtn = document.getElementById("undo")
 
 let drawing = false;
 let erasing = false;
+
+const undoStates = []
+const maxUndoStates = 50
+
+
+function buildImageJson() {
+  const cols = +widthInput.value;
+  const rows = +heightInput.value;
+
+  const imageString = Array.from(grid.children)
+    .map(p => p.classList.contains("black") ? "0" : "1")
+    .join("");
+
+  const json = {
+    imageWidth: cols,
+    imageHeight: rows,
+    image: imageString
+  };
+
+  const jsonText = JSON.stringify(json, null, 2);
+  return jsonText
+}
+
+
+// load from json
+function loadFromJson(inputString){
+  let data;
+
+  try {
+    data = JSON.parse(inputString);
+  } catch {
+    alert("Invalid JSON");
+    return;
+  }
+
+
+  const { imageWidth, imageHeight, image } = data;
+
+  if (
+    typeof imageWidth !== "number" ||
+    typeof imageHeight !== "number" ||
+    typeof image !== "string" ||
+    image.length !== imageWidth * imageHeight
+  ) {
+    alert("Invalid image data");
+    console.log(data)
+    console.log(typeof imageWidth)
+    console.log(typeof imageHeight)
+    console.log(typeof image)
+    return;
+  }
+
+  // update inputs
+  widthInput.value = imageWidth;
+  heightInput.value = imageHeight;
+
+  // rebuild grid
+  createGrid(imageWidth, imageHeight);
+
+  // apply pixels
+  const pixels = grid.children;
+  for (let i = 0; i < image.length; i++) {
+    if (image[i] === "0") {
+      pixels[i].classList.add("black");
+    } else {
+      pixels[i].classList.remove("black");
+    }
+  }
+
+  // update export preview
+  exportJson();
+}
+
+function saveState() {
+  console.log("Saving...")
+  const jsonState = buildImageJson()
+
+  undoStates.push(jsonState)
+  if (undoStates.length > maxUndoStates) {
+    undoStates.shift()
+  }
+
+  console.log(undoStates)
+
+}
+
+function restoreFromUndo() {
+  if (undoStates.length === 0) return
+  const state = undoStates.pop()
+  loadFromJson(state)
+
+}
+
+function undo() {
+  console.log("Undoing...")
+  console.log(undoStates)
+  restoreFromUndo()
+}
+
+undoBtn.addEventListener("click", undo)
+
 
 // track mouse buttons globally
 document.addEventListener("mousedown", (e) => {
@@ -81,6 +183,10 @@ function createGrid(newCols, newRows, oldValues = [], oldCols = 0, oldRows = 0) 
         if (erasing) pixel.classList.remove("black");
       });
 
+      pixel.addEventListener("mouseup", () => {
+        saveState()
+      })
+
       grid.appendChild(pixel);
     }
   }
@@ -102,23 +208,10 @@ function resizeGrid() {
   createGrid(newCols, newRows, oldValues, oldCols, oldRows);
 }
 
+
 // export grid as JSON string
 function exportJson() {
-  const cols = +widthInput.value;
-  const rows = +heightInput.value;
-
-  const imageString = Array.from(grid.children)
-    .map(p => p.classList.contains("black") ? "0" : "1")
-    .join("");
-
-  const json = {
-    imageWidth: cols,
-    imageHeight: rows,
-    image: imageString
-  };
-
-  const jsonText = JSON.stringify(json, null, 2);
-
+  jsonText = buildImageJson()
   document.getElementById("jsonOutput").value = jsonText;
 }
 
@@ -146,46 +239,8 @@ toggleGridBtn.addEventListener("click", () => {
 });
 
 loadBtn.addEventListener("click", () => {
-  let data;
+  loadFromJson(jsonInput.value)
 
-  try {
-    data = JSON.parse(jsonInput.value);
-  } catch {
-    alert("Invalid JSON");
-    return;
-  }
-
-  const { imageWidth, imageHeight, image } = data;
-
-  if (
-    typeof imageWidth !== "number" ||
-    typeof imageHeight !== "number" ||
-    typeof image !== "string" ||
-    image.length !== imageWidth * imageHeight
-  ) {
-    alert("Invalid image data");
-    return;
-  }
-
-  // update inputs
-  widthInput.value = imageWidth;
-  heightInput.value = imageHeight;
-
-  // rebuild grid
-  createGrid(imageWidth, imageHeight);
-
-  // apply pixels
-  const pixels = grid.children;
-  for (let i = 0; i < image.length; i++) {
-    if (image[i] === "0") {
-      pixels[i].classList.add("black");
-    } else {
-      pixels[i].classList.remove("black");
-    }
-  }
-
-  // update export preview
-  exportJson();
 });
 
 
@@ -197,4 +252,5 @@ heightInput.addEventListener("change", resizeGrid);
 
 // initial grid
 createGrid(+widthInput.value, +heightInput.value);
+saveState();
 exportJson();
