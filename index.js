@@ -3,6 +3,7 @@ const widthInput = document.getElementById("width");
 const heightInput = document.getElementById("height");
 const exportBtn = document.getElementById("export");
 const clearBtn = document.getElementById("clear");
+const toggleGridBtn = document.getElementById("toggleGrid");
 
 let drawing = false;
 let erasing = false;
@@ -135,6 +136,12 @@ clearBtn.addEventListener("click", () => {
     pixel.classList.remove("black");
   }
 });
+
+// Grid on or off
+toggleGridBtn.addEventListener("click", () => {
+  grid.classList.toggle("no-lines");
+});
+
 
 // attach listeners
 exportBtn.addEventListener("click", exportJson);
